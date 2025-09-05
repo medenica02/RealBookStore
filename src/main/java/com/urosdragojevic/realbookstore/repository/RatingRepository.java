@@ -1,6 +1,7 @@
 package com.urosdragojevic.realbookstore.repository;
 
 import com.urosdragojevic.realbookstore.domain.Rating;
+import com.urosdragojevic.realbookstore.audit.AuditLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
@@ -36,6 +37,12 @@ public class RatingRepository {
                     preparedStatement.setInt(3, rating.getUserId());
                     preparedStatement.executeUpdate();
                 }
+                catch (SQLException e) {
+                    e.printStackTrace();
+                    LOG.error("Failed to update the rating");
+                }
+                AuditLogger.getAuditLogger(RatingRepository.class).audit("Updated ratings");
+
             } else {
                 try (PreparedStatement preparedStatement = connection.prepareStatement(query3)) {
                     preparedStatement.setInt(1, rating.getBookId());
@@ -43,9 +50,15 @@ public class RatingRepository {
                     preparedStatement.setInt(3, rating.getRating());
                     preparedStatement.executeUpdate();
                 }
+                catch (SQLException e) {
+                    e.printStackTrace();
+                    LOG.error("Failed to insert the rating");
+                }
+                AuditLogger.getAuditLogger(RatingRepository.class).audit("Inserted ratings");
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            LOG.error("Failed to get rating");
         }
     }
 
@@ -60,6 +73,7 @@ public class RatingRepository {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            LOG.error("Failed to list all ratings");
         }
         return ratingList;
     }

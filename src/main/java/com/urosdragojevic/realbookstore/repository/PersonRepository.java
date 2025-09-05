@@ -34,6 +34,7 @@ public class PersonRepository {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            LOG.error("Failed to list all persons");
         }
         return personList;
     }
@@ -48,6 +49,9 @@ public class PersonRepository {
             while (rs.next()) {
                 personList.add(createPersonFromResultSet(rs));
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            LOG.error("Failed to find person with term: "+ searchTerm);
         }
         return personList;
     }
@@ -62,6 +66,7 @@ public class PersonRepository {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            LOG.error("Failed to get person with id "+ personId );
         }
 
         return null;
@@ -75,6 +80,7 @@ public class PersonRepository {
             statement.executeUpdate(query);
         } catch (SQLException e) {
             e.printStackTrace();
+            LOG.error("Failed to delete person with id "+ personId);
         }
     }
 
@@ -94,12 +100,16 @@ public class PersonRepository {
              PreparedStatement statement = connection.prepareStatement(query);
         ) {
             String firstName = personUpdate.getFirstName() != null ? personUpdate.getFirstName() : personFromDb.getFirstName();
+            AuditLogger.getAuditLogger(PersonRepository.class).audit("First name changed from : " + personFromDb.getFirstName() + " to " + personUpdate.getFirstName());
             String email = personUpdate.getEmail() != null ? personUpdate.getEmail() : personFromDb.getEmail();
+            AuditLogger.getAuditLogger(PersonRepository.class).audit("email changed from : " + personFromDb.getEmail() + " to " + personUpdate.getEmail());
             statement.setString(1, firstName);
             statement.setString(2, email);
             statement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
+            LOG.error("Failed to update person");
         }
+        AuditLogger.getAuditLogger(PersonRepository.class).audit("Person info successfully updated. " + personUpdate.toString());
     }
 }

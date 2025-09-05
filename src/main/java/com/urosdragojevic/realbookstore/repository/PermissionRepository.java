@@ -37,6 +37,7 @@ public class PermissionRepository {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            LOG.error("Failed to find by role id "+ roleId);
         }
         return permissions;
     }

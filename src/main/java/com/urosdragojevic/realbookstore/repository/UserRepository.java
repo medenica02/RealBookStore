@@ -1,6 +1,7 @@
 package com.urosdragojevic.realbookstore.repository;
 
 import com.urosdragojevic.realbookstore.domain.User;
+import com.urosdragojevic.realbookstore.audit.AuditLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
@@ -35,7 +36,9 @@ public class UserRepository {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            LOG.error("Search failed");
         }
+        AuditLogger.getAuditLogger(UserRepository.class).audit("Search result : " + username);
         return null;
     }
 
@@ -47,6 +50,7 @@ public class UserRepository {
             return rs.next();
         } catch (SQLException e) {
             e.printStackTrace();
+            LOG.error("Failed to validate credentials");
         }
         return false;
     }
@@ -59,6 +63,8 @@ public class UserRepository {
             statement.executeUpdate(query);
         } catch (SQLException e) {
             e.printStackTrace();
+            LOG.error("Failed to delete user");
         }
+        AuditLogger.getAuditLogger(UserRepository.class).audit("User successfully deleted. ID : " + userId);
     }
 }
